@@ -1,21 +1,15 @@
-FROM ubuntu:24.04
+FROM ubuntu:25.10
 
 ARG JUST_VERSION="1.8.0"
-ARG ZOXIDE_VERSION="0.8.0"
 ARG EZA_VERSION="0.23.4"
-ARG FZF_VERSION="0.39.1"
 ARG NEOVIM_VERSION="v0.11.5"
 ARG STARSHIP_VERSION="v1.9.0"
 ARG DIRENV_VERSION="v2.32.0"
-ARG BAT_VERSION="0.23.0"
 ARG CHEZMOI_VERSION="v2.18.0"
 ARG LAZYGIT_VERSION="v0.38.1"
 ARG RIPGREP_VERSION="13.0.0"
-ARG FD_VERSION="8.5.0"
-ARG FX_VERSION="17.0.0"
 ARG GO_VERSION="1.21.6"
-ARG AGE_VERSION="1.1.0"
-ARG UV_VERSION="v0.6.0"
+ARG UV_VERSION="0.9.17"
 ARG DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -25,15 +19,15 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     ca-certificates curl wget git unzip lsb-release gnupg apt-transport-https \
     procps jq tar gzip xz-utils build-essential python3 python3-venv python3-pip \
-    pipx nodejs npm fish tmux openssh-client gpg software-properties-common iputils-ping iproute2 \
+    pipx nodejs npm fish tmux openssh-client gpg software-properties-common iputils-ping iproute2 fzf bat lazygit fd-find \
  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Add Docker GPG key and repository, then install docker-ce-cli
-RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - \
- && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
- && apt-get update \
- && apt-get install -y --no-install-recommends docker-ce-cli \
- && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+# install docker-cli
+RUN  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends docker-ce-cli \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 # Install eza
 RUN curl -L -o /tmp/eza.zip https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.zip \
@@ -61,7 +55,7 @@ RUN set -eux; \
 RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 
 # Install neovim 
-RUN curl -fsSL https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-linux-x86_64.appimage -o /tmp/nvim \
+RUN curl -fsSL https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSION}/nvim-linux-x86_64.appimage -o /tmp/nvim \
  && chmod +x /tmp/nvim \
  && /tmp/nvim --appimage-extract \
  && cp /squashfs-root/usr/bin/nvim /usr/local/bin/nvim \
@@ -72,6 +66,11 @@ RUN curl -fsSL https://github.com/neovim/neovim/releases/download/v0.11.5/nvim-l
 # Install direnv
 RUN curl -fsSL https://github.com/direnv/direnv/releases/download/${DIRENV_VERSION}/direnv.linux-386 -o /usr/local/bin/direnv \
  && chmod +x /usr/local/bin/direnv
+
+# Install go
+RUN wget https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz \
+    && rm go$GO_VERSION.linux-amd64.tar.gz 
 
 # Create non-root user 'dev'
 RUN useradd -m -s /usr/bin/fish dev \
@@ -91,14 +90,14 @@ ENV PIPX_BIN_DIR=/home/dev/.local/bin
 RUN curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
 
 # Install uv
-RUN curl -LsSf https://astral.sh/uv/0.9.17/install.sh | sh
+RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh
 
 # Initialize  and apply chezmoi
 RUN /usr/local/bin/chezmoi init https://github.com/lefterisALEX/dotfiles.git 2>/dev/null || true \
  && rm -rf /home/dev/.local/share/chezmoi/.chezmoiscripts \
  && /usr/local/bin/chezmoi apply || true
 
-# Create nvim directories
+# Setup nvim
 RUN mkdir -p /home/dev/.local/share/nvim/lazy \
     /home/dev/.local/state/nvim \
     /home/dev/.cache/nvim
