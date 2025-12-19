@@ -35,6 +35,29 @@ RUN curl -L -o /tmp/eza.zip https://github.com/eza-community/eza/releases/downlo
  && chmod +x /usr/local/bin/eza \
  && rm /tmp/eza.zip
 
+# Install kubie
+RUN curl -L -o /usr/local/bin/kubie https://github.com/sbstp/kubie/releases/download/v0.26.0/kubie-linux-amd64 \
+    && chmod +x /usr/local/bin/kubie
+
+# Install kubectl
+RUN curl -LO https://dl.k8s.io/release/v1.35.0/bin/linux/amd64/kubectl \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install helm
+RUN curl -LO https://get.helm.sh/helm-v3.19.4-linux-amd64.tar.gz \
+    && tar -zxvf helm-v3.19.4-linux-amd64.tar.gz \
+    && mv linux-amd64/helm /usr/local/bin/helm \
+    && chmod +x /usr/local/bin/helm \
+    && rm -rf linux-amd64 helm-v3.19.4-linux-amd64.tar.gz
+
+# Install stern
+RUN curl -LO https://github.com/stern/stern/releases/download/v1.33.1/stern_1.33.1_linux_amd64.tar.gz \
+    && tar -zxvf stern_1.33.1_linux_amd64.tar.gz \
+    && mv stern /usr/local/bin/stern \
+    && chmod +x /usr/local/bin/stern \
+    && rm stern_1.33.1_linux_amd64.tar.gz
+
+
 # Install chezmoi 
 RUN set -eux; \
     CV="${CHEZMOI_VERSION}"; \
@@ -66,6 +89,7 @@ RUN curl -fsSL https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSI
 # Install direnv
 RUN curl -fsSL https://github.com/direnv/direnv/releases/download/${DIRENV_VERSION}/direnv.linux-386 -o /usr/local/bin/direnv \
  && chmod +x /usr/local/bin/direnv
+
 
 # Install go
 RUN wget https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz \
