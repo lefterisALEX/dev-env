@@ -163,5 +163,8 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /usr/local/share /usr/local/share
 COPY --from=builder /usr/local/go /usr/local/go
 COPY --from=builder /home/dev /home/dev
+# COPY --from=builder /usr/local/bin/lazygit /usr/local/bin/lazygit
+# COPY --from=builder /usr/local/bin/crane /usr/local/bin/crane
+
 
 CMD ["fish"]
