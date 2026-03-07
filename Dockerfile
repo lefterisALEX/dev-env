@@ -21,6 +21,8 @@ ARG HELM_VERSION=3.19.4
 ARG STERN_VERSION=1.33.1
 ARG KUBIE_VERSION=0.26.0
 ARG CRANE_VERSION=0.20.7
+ARG TERRAFORM_VERSION=1.10.5
+ARG SKOPEO_VERSION=1.18.0
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -61,6 +63,17 @@ RUN curl -fsSL -o /tmp/crane.tar.gz \
  && tar -xzf /tmp/crane.tar.gz -C /tmp \
  && install -m 0755 /tmp/crane /usr/local/bin/crane \
  && rm -rf /tmp/crane /tmp/crane.tar.gz
+
+# ---- terraform ----
+RUN curl -fsSL -o /tmp/terraform.zip \
+    https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+ && unzip -q /tmp/terraform.zip -d /usr/local/bin \
+ && rm /tmp/terraform.zip
+
+# ---- skopeo ----
+RUN curl -fsSL -o /usr/local/bin/skopeo \
+    https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64 \
+ && chmod +x /usr/local/bin/skopeo
 
 # ---- neovim (appimage extract) ----
 RUN curl -fsSL https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSION}/nvim-linux-x86_64.appimage \
