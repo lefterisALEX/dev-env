@@ -39,7 +39,7 @@ RUN curl -L https://github.com/eza-community/eza/releases/download/v${EZA_VERSIO
  && unzip -q /tmp/eza.zip -d /usr/local/bin \
  && rm /tmp/eza.zip
 
-RUN curl -L https://github.com/sbstp/kubie/releases/download/${KUBIE_VERSION}/kubie-linux-amd64 \
+RUN curl -L https://github.com/sbstp/kubie/releases/download/v${KUBIE_VERSION}/kubie-linux-amd64 \
     -o /usr/local/bin/kubie && chmod +x /usr/local/bin/kubie
 
 RUN curl -LO https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
@@ -139,9 +139,19 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git fish tmux openssh-client \
     procps jq iproute2 iputils-ping fzf bat fd-find   python3-pip  nodejs npm ripgrep\
+    gnupg lsb-release \
  && rm -rf /var/lib/apt/lists/* \
  && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
  && ln -sf /usr/bin/batcat /usr/local/bin/bat \
+ && rm -rf /var/lib/apt/lists/*
+
+# ---- docker ----
+RUN install -m 0755 -d /etc/apt/keyrings \
+ && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+ && chmod a+r /etc/apt/keyrings/docker.gpg \
+ && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin python3 python3-venv python3-pip \
  && rm -rf /var/lib/apt/lists/*
 
 COPY verify-tools.sh /usr/local/bin/verify-tools

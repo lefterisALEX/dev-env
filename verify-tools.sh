@@ -78,6 +78,10 @@ check_tool "stern" stern "stern --version"
 check_tool "kubie" kubie "kubie --version"
 check_tool "crane" crane "crane version"
 
+# ---- docker ----
+check_tool "docker" docker "docker --version"
+check_tool "docker compose" docker "docker compose version"
+
 # ---- misc ----
 check_tool "lazygit" lazygit "lazygit --version"
 check_tool "eza" eza "eza --version"
