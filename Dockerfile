@@ -126,20 +126,42 @@ RUN chezmoi init https://github.com/lefterisALEX/dotfiles.git || true \
  && rm -rf ~/.local/share/chezmoi/.chezmoiscripts \
  && chezmoi apply || true
 
+# ---- neovim air-gap overrides (applied after dotfiles) ----
+# Shim for old nvim-treesitter API (configs -> config rename).
+# Placed at lua/nvim-treesitter/configs.lua so require('nvim-treesitter.configs')
+# resolves here (user config lua/ is first in runtimepath).
+RUN mkdir -p ~/.config/nvim/lua/nvim-treesitter && printf '%s\n' \
+    '-- compat shim: nvim-treesitter renamed configs.lua -> config.lua' \
+    'return require("nvim-treesitter.config")' \
+    > ~/.config/nvim/lua/nvim-treesitter/configs.lua
+
+# Disable mason-tool-installer auto-install on startup
+RUN mkdir -p ~/.config/nvim/after/plugin && printf '%s\n' \
+    '-- disable mason auto-install in air-gapped environment' \
+    'local ok, installer = pcall(require, "mason-tool-installer")' \
+    'if ok then installer.setup({ run_on_start = false }) end' \
+    > ~/.config/nvim/after/plugin/mason_airgap.lua
+
 # ---- neovim plugins + treesitter (air-gapped ready) ----
-RUN mkdir -p ~/.local/share/nvim/lazy
-RUN git clone --filter=blob:none --depth=1 \
+# Pre-clone lazy.nvim so the bootstrap in init.lua skips the network clone
+RUN mkdir -p ~/.local/share/nvim/lazy \
+ && git clone --filter=blob:none --depth=1 \
     https://github.com/folke/lazy.nvim.git \
     ~/.local/share/nvim/lazy/lazy.nvim
 
-RUN nvim --headless --noplugin \
-    -u NONE \
-    -c "set rtp+=~/.local/share/nvim/lazy/lazy.nvim" \
-    -c "lua require('lazy').setup({spec={{import='plugins'}}, install={missing=true}, checker={enabled=false}, change_detection={enabled=false}})" \
-    -c "lua require('lazy').sync({wait=true})" \
-    -c "quitall" || true
+# Use the real config so lazy reads actual plugin specs and installs them all.
+# Lazy! (with bang) runs non-interactively without spawning a UI — won't hang in headless.
+RUN nvim --headless "+Lazy! sync" "+qa!" 2>&1 | tee /tmp/lazy-sync.log \
+ && grep -qi "error" /tmp/lazy-sync.log && echo "WARNING: lazy sync had errors" || true
 
-RUN nvim --headless -c "TSUpdateSync" -c "quitall" || true
+# Pre-compile treesitter parsers
+RUN nvim --headless \
+    -c "TSInstall! bash fish lua python go yaml json toml dockerfile markdown markdown_inline vim vimdoc query" \
+    -c "quitall" \
+    2>&1 || true
+
+# Pre-install mason tools so mason-tool-installer has nothing to fetch at runtime
+RUN nvim --headless "+MasonInstall stylua lua-language-server" "+qa!" 2>&1 || true
 
 ############################
 # Stage 2 — FINAL RUNTIME
