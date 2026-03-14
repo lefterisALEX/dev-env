@@ -23,6 +23,7 @@ ARG KUBIE_VERSION=0.26.0
 ARG CRANE_VERSION=0.20.7
 ARG TERRAFORM_VERSION=1.10.5
 ARG SKOPEO_VERSION=1.18.0
+ARG HELIX_VERSION=25.01.1
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -75,6 +76,15 @@ RUN curl -fsSL -o /usr/local/bin/skopeo \
     https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64 \
  && chmod +x /usr/local/bin/skopeo
 
+# ---- helix ----
+RUN curl -fsSL -o /tmp/helix.tar.xz \
+    https://github.com/helix-editor/helix/releases/download/${HELIX_VERSION}/helix-${HELIX_VERSION}-x86_64-linux.tar.xz \
+ && tar -xJf /tmp/helix.tar.xz -C /tmp \
+ && install -m 0755 /tmp/helix-${HELIX_VERSION}-x86_64-linux/hx /usr/local/bin/hx \
+ && mkdir -p /usr/local/share/helix \
+ && cp -r /tmp/helix-${HELIX_VERSION}-x86_64-linux/runtime /usr/local/share/helix/runtime \
+ && rm -rf /tmp/helix.tar.xz /tmp/helix-${HELIX_VERSION}-x86_64-linux
+
 # ---- neovim (appimage extract) ----
 RUN curl -fsSL https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSION}/nvim-linux-x86_64.appimage \
     -o /tmp/nvim \
@@ -125,6 +135,10 @@ WORKDIR /home/dev
 RUN chezmoi init https://github.com/lefterisALEX/dotfiles.git || true \
  && rm -rf ~/.local/share/chezmoi/.chezmoiscripts \
  && chezmoi apply || true
+
+# ---- helix config ----
+RUN mkdir -p ~/.config/helix \
+ && printf 'theme = "dracula"\n' > ~/.config/helix/config.toml
 
 # ---- neovim air-gap overrides (applied after dotfiles) ----
 # Shim for old nvim-treesitter API (configs -> config rename).
@@ -202,6 +216,7 @@ WORKDIR /home/dev
 ENV PATH="/home/dev/.local/bin:/usr/local/go/bin:/usr/local/bin:${PATH}"
 ENV LAZY_NO_UPDATE=1
 ENV LAZY_NO_CHECK=1
+ENV HELIX_RUNTIME=/usr/local/share/helix/runtime
 
 # ---- copy hydrated tooling ----
 COPY --from=builder /usr/local/bin /usr/local/bin
