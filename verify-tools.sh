@@ -77,6 +77,7 @@ check_tool "helm" helm "helm version --short"
 check_tool "stern" stern "stern --version"
 check_tool "kubie" kubie "kubie --version"
 check_tool "crane" crane "crane version"
+check_tool "chainsaw" chainsaw "chainsaw version"
 
 # ---- docker ----
 check_tool "docker" docker "docker --version"

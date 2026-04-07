@@ -25,6 +25,7 @@ ARG TERRAFORM_VERSION=1.10.5
 ARG SKOPEO_VERSION=1.18.0
 ARG HELIX_VERSION=25.01.1
 ARG YQ_VERSION=4.45.1
+ARG CHAINSAW_VERSION=0.2.14
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -81,6 +82,13 @@ RUN curl -fsSL -o /usr/local/bin/skopeo \
 RUN curl -fsSL -o /usr/local/bin/yq \
     https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 \
  && chmod +x /usr/local/bin/yq
+
+# ---- chainsaw ----
+RUN curl -fsSL -o /tmp/chainsaw.tar.gz \
+    https://github.com/kyverno/chainsaw/releases/download/v${CHAINSAW_VERSION}/chainsaw_linux_amd64.tar.gz \
+ && tar -xzf /tmp/chainsaw.tar.gz -C /tmp \
+ && install -m 0755 /tmp/chainsaw /usr/local/bin/chainsaw \
+ && rm -rf /tmp/chainsaw /tmp/chainsaw.tar.gz
 
 # ---- just ----
 RUN curl -fsSL -o /tmp/just.tar.gz \
