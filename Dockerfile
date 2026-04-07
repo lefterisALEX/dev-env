@@ -24,6 +24,7 @@ ARG CRANE_VERSION=0.20.7
 ARG TERRAFORM_VERSION=1.10.5
 ARG SKOPEO_VERSION=1.18.0
 ARG HELIX_VERSION=25.01.1
+ARG YQ_VERSION=4.45.1
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -75,6 +76,18 @@ RUN curl -fsSL -o /tmp/terraform.zip \
 RUN curl -fsSL -o /usr/local/bin/skopeo \
     https://github.com/lework/skopeo-binary/releases/download/v${SKOPEO_VERSION}/skopeo-linux-amd64 \
  && chmod +x /usr/local/bin/skopeo
+
+# ---- yq ----
+RUN curl -fsSL -o /usr/local/bin/yq \
+    https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 \
+ && chmod +x /usr/local/bin/yq
+
+# ---- just ----
+RUN curl -fsSL -o /tmp/just.tar.gz \
+    https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+ && tar -xzf /tmp/just.tar.gz -C /tmp \
+ && install -m 0755 /tmp/just /usr/local/bin/just \
+ && rm -rf /tmp/just /tmp/just.tar.gz
 
 # ---- helix ----
 RUN curl -fsSL -o /tmp/helix.tar.xz \
