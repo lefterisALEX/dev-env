@@ -26,6 +26,7 @@ ARG SKOPEO_VERSION=1.18.0
 ARG HELIX_VERSION=25.01.1
 ARG YQ_VERSION=4.45.1
 ARG CHAINSAW_VERSION=0.2.14
+ARG GRPCURL_VERSION=1.9.3
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -82,6 +83,13 @@ RUN curl -fsSL -o /usr/local/bin/skopeo \
 RUN curl -fsSL -o /usr/local/bin/yq \
     https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 \
  && chmod +x /usr/local/bin/yq
+
+# ---- grpcurl ----
+RUN curl -fsSL -o /tmp/grpcurl.tar.gz \
+    https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz \
+ && tar -xzf /tmp/grpcurl.tar.gz -C /tmp \
+ && install -m 0755 /tmp/grpcurl /usr/local/bin/grpcurl \
+ && rm -rf /tmp/grpcurl /tmp/grpcurl.tar.gz
 
 # ---- chainsaw ----
 RUN curl -fsSL -o /tmp/chainsaw.tar.gz \
@@ -208,7 +216,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git fish tmux openssh-client \
-    procps jq iproute2 iputils-ping fzf bat fd-find   python3-pip  nodejs npm ripgrep\
+    procps jq iproute2 iputils-ping fzf bat fd-find python3-pip nodejs npm ripgrep make \
     gnupg lsb-release \
  && rm -rf /var/lib/apt/lists/* \
  && ln -sf /usr/bin/fdfind /usr/local/bin/fd \

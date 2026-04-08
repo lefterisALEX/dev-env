@@ -78,10 +78,14 @@ check_tool "stern" stern "stern --version"
 check_tool "kubie" kubie "kubie --version"
 check_tool "crane" crane "crane version"
 check_tool "chainsaw" chainsaw "chainsaw version"
+check_tool "grpcurl" grpcurl "grpcurl --version"
 
 # ---- docker ----
 check_tool "docker" docker "docker --version"
 check_tool "docker compose" docker "docker compose version"
+
+# ---- build ----
+check_tool "make" make "make --version"
 
 # ---- misc ----
 check_tool "lazygit" lazygit "lazygit --version"
