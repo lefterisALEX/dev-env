@@ -63,6 +63,7 @@ check_tool "direnv" direnv "direnv --version"
 
 # ---- editors ----
 check_tool "neovim" nvim "nvim --version"
+check_tool "yazi" yazi "yazi --version"
 
 # ---- languages ----
 check_tool "python3" python3 "python3 --version"

@@ -23,10 +23,11 @@ ARG KUBIE_VERSION=0.26.0
 ARG CRANE_VERSION=0.20.7
 ARG TERRAFORM_VERSION=1.10.5
 ARG SKOPEO_VERSION=1.18.0
-ARG HELIX_VERSION=25.01.1
+ARG HELIX_VERSION=25.07.1
 ARG YQ_VERSION=4.45.1
 ARG CHAINSAW_VERSION=0.2.14
 ARG GRPCURL_VERSION=1.9.3
+ARG YAZI_VERSION=26.1.22
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -90,6 +91,14 @@ RUN curl -fsSL -o /tmp/grpcurl.tar.gz \
  && tar -xzf /tmp/grpcurl.tar.gz -C /tmp \
  && install -m 0755 /tmp/grpcurl /usr/local/bin/grpcurl \
  && rm -rf /tmp/grpcurl /tmp/grpcurl.tar.gz
+
+# ---- yazi ----
+RUN curl -fsSL -o /tmp/yazi.zip \
+    https://github.com/sxyazi/yazi/releases/download/v${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip \
+ && unzip -q /tmp/yazi.zip -d /tmp/yazi-extract \
+ && install -m 0755 /tmp/yazi-extract/yazi-x86_64-unknown-linux-musl/yazi /usr/local/bin/yazi \
+ && install -m 0755 /tmp/yazi-extract/yazi-x86_64-unknown-linux-musl/ya /usr/local/bin/ya \
+ && rm -rf /tmp/yazi.zip /tmp/yazi-extract
 
 # ---- chainsaw ----
 RUN curl -fsSL -o /tmp/chainsaw.tar.gz \
