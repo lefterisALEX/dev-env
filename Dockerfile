@@ -226,7 +226,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git fish tmux openssh-client \
     procps jq iproute2 iputils-ping fzf bat fd-find python3-pip nodejs npm ripgrep make \
-    gnupg lsb-release \
+    gnupg lsb-release gettext-base \
  && rm -rf /var/lib/apt/lists/* \
  && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
  && ln -sf /usr/bin/batcat /usr/local/bin/bat \
