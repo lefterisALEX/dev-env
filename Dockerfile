@@ -5,7 +5,7 @@
 FROM ubuntu:24.04 AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG JUST_VERSION=1.8.0
+ARG JUST_VERSION=1.43.1
 ARG EZA_VERSION=0.23.4
 ARG NEOVIM_VERSION=v0.11.5
 ARG STARSHIP_VERSION=v1.9.0
@@ -28,6 +28,7 @@ ARG YQ_VERSION=4.45.1
 ARG CHAINSAW_VERSION=0.2.14
 ARG GRPCURL_VERSION=1.9.3
 ARG YAZI_VERSION=26.1.22
+ARG BATS_VERSION=1.11.1
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -106,6 +107,13 @@ RUN curl -fsSL -o /tmp/chainsaw.tar.gz \
  && tar -xzf /tmp/chainsaw.tar.gz -C /tmp \
  && install -m 0755 /tmp/chainsaw /usr/local/bin/chainsaw \
  && rm -rf /tmp/chainsaw /tmp/chainsaw.tar.gz
+
+# ---- bats ----
+RUN curl -fsSL -o /tmp/bats.tar.gz \
+    https://github.com/bats-core/bats-core/archive/refs/tags/v${BATS_VERSION}.tar.gz \
+ && tar -xzf /tmp/bats.tar.gz -C /tmp \
+ && /tmp/bats-core-${BATS_VERSION}/install.sh /usr/local \
+ && rm -rf /tmp/bats.tar.gz /tmp/bats-core-${BATS_VERSION}
 
 # ---- just ----
 RUN curl -fsSL -o /tmp/just.tar.gz \
@@ -259,6 +267,8 @@ ENV HELIX_RUNTIME=/usr/local/share/helix/runtime
 # ---- copy hydrated tooling ----
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /usr/local/share /usr/local/share
+COPY --from=builder /usr/local/libexec/bats-core /usr/local/libexec/bats-core
+COPY --from=builder /usr/local/lib/bats-core /usr/local/lib/bats-core
 COPY --from=builder /usr/local/go /usr/local/go
 COPY --from=builder /home/dev /home/dev
 

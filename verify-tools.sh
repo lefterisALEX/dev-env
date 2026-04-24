@@ -88,6 +88,9 @@ check_tool "docker compose" docker "docker compose version"
 # ---- build ----
 check_tool "make" make "make --version"
 
+# ---- testing ----
+check_tool "bats" bats "bats --version"
+
 # ---- misc ----
 check_tool "lazygit" lazygit "lazygit --version"
 check_tool "eza" eza "eza --version"
