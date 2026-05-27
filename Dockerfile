@@ -30,6 +30,8 @@ ARG GRPCURL_VERSION=1.9.3
 ARG YAZI_VERSION=26.1.22
 ARG BATS_VERSION=1.11.1
 ARG GLOW_VERSION=2.0.0
+ARG ISTIOCTL_VERSION=1.24.3
+ARG CILIUM_VERSION=0.18.4
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -101,6 +103,20 @@ RUN curl -fsSL -o /tmp/yazi.zip \
  && install -m 0755 /tmp/yazi-extract/yazi-x86_64-unknown-linux-musl/yazi /usr/local/bin/yazi \
  && install -m 0755 /tmp/yazi-extract/yazi-x86_64-unknown-linux-musl/ya /usr/local/bin/ya \
  && rm -rf /tmp/yazi.zip /tmp/yazi-extract
+
+# ---- cilium cli ----
+RUN curl -fsSL -o /tmp/cilium.tar.gz \
+    https://github.com/cilium/cilium-cli/releases/download/v${CILIUM_VERSION}/cilium-linux-amd64.tar.gz \
+ && tar -xzf /tmp/cilium.tar.gz -C /tmp \
+ && install -m 0755 /tmp/cilium /usr/local/bin/cilium \
+ && rm -rf /tmp/cilium /tmp/cilium.tar.gz
+
+# ---- istioctl ----
+RUN curl -fsSL -o /tmp/istioctl.tar.gz \
+    https://github.com/istio/istio/releases/download/${ISTIOCTL_VERSION}/istioctl-${ISTIOCTL_VERSION}-linux-amd64.tar.gz \
+ && tar -xzf /tmp/istioctl.tar.gz -C /tmp \
+ && install -m 0755 /tmp/istioctl /usr/local/bin/istioctl \
+ && rm -rf /tmp/istioctl /tmp/istioctl.tar.gz
 
 # ---- chainsaw ----
 RUN curl -fsSL -o /tmp/chainsaw.tar.gz \
