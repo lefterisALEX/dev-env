@@ -29,6 +29,7 @@ ARG CHAINSAW_VERSION=0.2.14
 ARG GRPCURL_VERSION=1.9.3
 ARG YAZI_VERSION=26.1.22
 ARG BATS_VERSION=1.11.1
+ARG GLOW_VERSION=2.0.0
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -114,6 +115,14 @@ RUN curl -fsSL -o /tmp/bats.tar.gz \
  && tar -xzf /tmp/bats.tar.gz -C /tmp \
  && /tmp/bats-core-${BATS_VERSION}/install.sh /usr/local \
  && rm -rf /tmp/bats.tar.gz /tmp/bats-core-${BATS_VERSION}
+
+# ---- glow ----
+RUN curl -fsSL -o /tmp/glow.tar.gz \
+    https://github.com/charmbracelet/glow/releases/download/v${GLOW_VERSION}/glow_${GLOW_VERSION}_Linux_x86_64.tar.gz \
+ && mkdir -p /tmp/glow-extract \
+ && tar -xzf /tmp/glow.tar.gz -C /tmp/glow-extract \
+ && find /tmp/glow-extract -name "glow" -type f -exec install -m 0755 {} /usr/local/bin/glow \; \
+ && rm -rf /tmp/glow-extract /tmp/glow.tar.gz
 
 # ---- just ----
 RUN curl -fsSL -o /tmp/just.tar.gz \
@@ -234,6 +243,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git fish tmux openssh-client \
     procps jq iproute2 iputils-ping fzf bat fd-find python3-pip nodejs npm ripgrep make \
+    net-tools dnsutils redis-tools \
     gnupg lsb-release gettext-base \
  && rm -rf /var/lib/apt/lists/* \
  && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
