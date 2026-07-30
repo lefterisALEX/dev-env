@@ -93,6 +93,7 @@ check_tool "bats" bats "bats --version"
 
 # ---- misc ----
 check_tool "pi" pi "pi --version"
+check_tool "opencode" opencode "opencode --version"
 check_tool "lazygit" lazygit "lazygit --version"
 check_tool "eza" eza "eza --version"
 check_tool "ripgrep" rg "rg --version"
