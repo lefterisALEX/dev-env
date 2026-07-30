@@ -32,6 +32,7 @@ ARG BATS_VERSION=1.11.1
 ARG GLOW_VERSION=2.0.0
 ARG ISTIOCTL_VERSION=1.24.3
 ARG CILIUM_VERSION=0.18.4
+ARG PI_VERSION=0.80.3
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -254,16 +255,22 @@ RUN nvim --headless "+MasonInstall stylua lua-language-server" "+qa!" 2>&1 || tr
 FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG PI_VERSION=0.80.3
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git fish tmux openssh-client \
-    procps jq iproute2 iputils-ping fzf bat fd-find python3-pip nodejs npm ripgrep make \
+    procps jq iproute2 iputils-ping fzf bat fd-find python3-pip ripgrep make \
     net-tools dnsutils redis-tools \
     gnupg lsb-release gettext-base \
  && rm -rf /var/lib/apt/lists/* \
  && ln -sf /usr/bin/fdfind /usr/local/bin/fd \
  && ln -sf /usr/bin/batcat /usr/local/bin/bat \
+ && rm -rf /var/lib/apt/lists/*
+
+# ---- node (22.x, required by pi coding agent) ----
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
  && rm -rf /var/lib/apt/lists/*
 
 # ---- docker ----
@@ -274,6 +281,9 @@ RUN install -m 0755 -d /etc/apt/keyrings \
  && apt-get update \
  && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin python3 python3-venv python3-pip \
  && rm -rf /var/lib/apt/lists/*
+
+# ---- pi (pi.dev coding agent CLI) ----
+RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent@${PI_VERSION}
 
 COPY verify-tools.sh /usr/local/bin/verify-tools
 RUN chmod +x /usr/local/bin/verify-tools
