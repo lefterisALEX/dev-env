@@ -256,6 +256,7 @@ FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG PI_VERSION=0.80.3
+ARG OPENCODE_VERSION=1.18.9
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -284,6 +285,9 @@ RUN install -m 0755 -d /etc/apt/keyrings \
 
 # ---- pi (pi.dev coding agent CLI) ----
 RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent@${PI_VERSION}
+
+# ---- opencode (opencode.ai coding agent CLI) ----
+RUN npm install -g opencode-ai@${OPENCODE_VERSION}
 
 COPY verify-tools.sh /usr/local/bin/verify-tools
 RUN chmod +x /usr/local/bin/verify-tools
