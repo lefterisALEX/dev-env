@@ -176,7 +176,7 @@ RUN wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz \
 RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 RUN curl -fsSL https://github.com/direnv/direnv/releases/download/${DIRENV_VERSION}/direnv.linux-amd64 \
     -o /usr/local/bin/direnv && chmod +x /usr/local/bin/direnv
-RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | sh
+RUN curl -LsSf https://astral.sh/uv/${UV_VERSION}/install.sh | env UV_UNMANAGED_INSTALL=/usr/local/bin sh
 
 # ---- zoxide ----
 RUN curl -fsSL https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION}-x86_64-unknown-linux-musl.tar.gz \
@@ -257,6 +257,7 @@ FROM ubuntu:24.04
 ARG DEBIAN_FRONTEND=noninteractive
 ARG PI_VERSION=0.80.3
 ARG OPENCODE_VERSION=1.18.9
+ARG OBS_MIGRATE_VERSION=1.0.0
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -311,5 +312,8 @@ COPY --from=builder /usr/local/libexec/bats-core /usr/local/libexec/bats-core
 COPY --from=builder /usr/local/lib/bats-core /usr/local/lib/bats-core
 COPY --from=builder /usr/local/go /usr/local/go
 COPY --from=builder /home/dev /home/dev
+
+# ---- obs-migrate (elastic/observability-migration-platform) ----
+RUN uv tool install "elastic-observability-migration[all]==${OBS_MIGRATE_VERSION}"
 
 CMD ["fish"]
