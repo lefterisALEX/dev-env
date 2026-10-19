@@ -93,6 +93,10 @@ check_tool "make" make "make --version"
 # ---- testing ----
 check_tool "bats" bats "bats --version"
 
+# ---- load generation ----
+check_tool "k6" k6 "k6 version"
+check_tool "vegeta" vegeta "vegeta --version"
+
 # ---- misc ----
 check_tool "pi" pi "pi --version"
 check_tool "opencode" opencode "opencode --version"
