@@ -33,6 +33,8 @@ ARG GLOW_VERSION=2.0.0
 ARG ISTIOCTL_VERSION=1.24.3
 ARG CILIUM_VERSION=0.18.4
 ARG PI_VERSION=0.80.3
+ARG K6_VERSION=2.2.0
+ARG VEGETA_VERSION=12.13.0
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -125,6 +127,20 @@ RUN curl -fsSL -o /tmp/chainsaw.tar.gz \
  && tar -xzf /tmp/chainsaw.tar.gz -C /tmp \
  && install -m 0755 /tmp/chainsaw /usr/local/bin/chainsaw \
  && rm -rf /tmp/chainsaw /tmp/chainsaw.tar.gz
+
+# ---- k6 ----
+RUN curl -fsSL -o /tmp/k6.tar.gz \
+    https://github.com/grafana/k6/releases/download/v${K6_VERSION}/k6-v${K6_VERSION}-linux-amd64.tar.gz \
+ && tar -xzf /tmp/k6.tar.gz -C /tmp \
+ && install -m 0755 /tmp/k6-v${K6_VERSION}-linux-amd64/k6 /usr/local/bin/k6 \
+ && rm -rf /tmp/k6.tar.gz /tmp/k6-v${K6_VERSION}-linux-amd64
+
+# ---- vegeta ----
+RUN curl -fsSL -o /tmp/vegeta.tar.gz \
+    https://github.com/tsenart/vegeta/releases/download/v${VEGETA_VERSION}/vegeta_${VEGETA_VERSION}_linux_amd64.tar.gz \
+ && tar -xzf /tmp/vegeta.tar.gz -C /tmp \
+ && install -m 0755 /tmp/vegeta /usr/local/bin/vegeta \
+ && rm -rf /tmp/vegeta.tar.gz /tmp/vegeta
 
 # ---- bats ----
 RUN curl -fsSL -o /tmp/bats.tar.gz \
